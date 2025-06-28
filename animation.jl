@@ -2,7 +2,7 @@ using Plots
 using LinearAlgebra
 using StaticArrays
 
-function animate_vtol(sol;  fps = 30, filename = "vtol_animation.gif")
+function animate_vtol(sol; z_offset=5.0,  fps = 30, filename = "vtol_animation.gif")
     t_hist = range(sol.t[1], sol.t[end], length = round(Int, fps * (sol.t[end] - sol.t[1])))
 
     # Geometry and scaling
@@ -15,21 +15,36 @@ function animate_vtol(sol;  fps = 30, filename = "vtol_animation.gif")
 
     anim = @animate for t in t_hist
         state = sol(t)
+        # v = state[1]     # horizontal position
+        # z = -state[2]     # vertical position (altitude)
+        # vx_body = state[3]
+        # vz_body = state[4]
+        # θ = state[5]
+
+        # u = @SVector [0.0, 0.0, 0.0, 0.0]
+        # T_left, T_right, T_prop, M_elev = u
+
+        # # Rotation matrix: body to world
+        # R = SMatrix{2,2}(cos(θ), -sin(θ), sin(θ), cos(θ))
+
+        # # Convert body-frame velocity to world-frame
+        # vel_world = R * SVector(vx_body, vz_body)
+        # vel_world = SVector(vel_world[1], -vel_world[2])
+
         v = state[1]     # horizontal position
-        z = -state[2]     # vertical position (altitude)
-        vx_body = state[3]
-        vz_body = state[4]
+        z = state[3] + z_offset     # vertical position (altitude)
+        vx = state[2]
+        vz = state[4]
         θ = state[5]
 
         u = @SVector [0.0, 0.0, 0.0, 0.0]
-        T_left, T_right, T_prop, M_elev = u
+        T_left, T_right, T_prop = state[7:9]
 
         # Rotation matrix: body to world
-        R = SMatrix{2,2}(cos(θ), -sin(θ), sin(θ), cos(θ))
+        R = SMatrix{2,2}(cos(θ), sin(θ), -sin(θ), cos(θ))
 
         # Convert body-frame velocity to world-frame
-        vel_world = R * SVector(vx_body, vz_body)
-        vel_world = SVector(vel_world[1], -vel_world[2])
+        vel_world = SVector(vx, vz)
 
         # Body shape
         body = [
