@@ -2,7 +2,7 @@ using Plots
 using LinearAlgebra
 using StaticArrays
 
-function animate_vtol(sol; z_offset=5.0,  fps = 30, filename = "vtol_animation.gif")
+function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.gif")
     t_hist = range(sol.t[1], sol.t[end], length = round(Int, fps * (sol.t[end] - sol.t[1])))
 
     # Geometry and scaling
@@ -12,6 +12,9 @@ function animate_vtol(sol; z_offset=5.0,  fps = 30, filename = "vtol_animation.g
     thrust_scale = 0.1
     vel_scale = 0.5
     prop_offset = SVector(0.4, 0.0)
+
+    xlims = (minimum(sol(t)[1] for t in t_hist) - 1, maximum(sol(t)[1] for t in t_hist) + 1)
+    ylims = (minimum(sol(t)[3] + z_offset for t in t_hist) - 1, maximum(sol(t)[3] + z_offset for t in t_hist) + 1)
 
     anim = @animate for t in t_hist
         state = sol(t)
@@ -74,7 +77,7 @@ function animate_vtol(sol; z_offset=5.0,  fps = 30, filename = "vtol_animation.g
         vel_arrow   = vel_scale * vel_world
 
         # Plot
-        plot(bx, by, lw=2, label="", aspect_ratio=1, xlims=(-5,5), ylims=(0,12))
+        plot(bx, by, lw=2, label="", aspect_ratio=1, xlims=xlims, ylims=ylims)
         scatter!([left_pos[1], right_pos[1], prop_pos[1]], [left_pos[2], right_pos[2], prop_pos[2]], label="", color=:black)
 
         # Thrust arrows
