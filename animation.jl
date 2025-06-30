@@ -40,7 +40,6 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
         vz = state[4]
         θ = state[5]
 
-        u = @SVector [0.0, 0.0, 0.0, 0.0]
         T_left, T_right, T_prop = state[7:9]
 
         # Rotation matrix: body to world
