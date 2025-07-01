@@ -1,6 +1,7 @@
 using Plots
 using LinearAlgebra
 using StaticArrays
+import Printf
 
 function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.gif")
     t_hist = range(sol.t[1], sol.t[end], length = round(Int, fps * (sol.t[end] - sol.t[1])))
@@ -40,7 +41,7 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
         vz = state[4]
         θ = state[5]
 
-        T_left, T_right, T_prop = state[7:9]
+        T_left, T_right, T_prop = 10*state[7:9]
 
         # Rotation matrix: body to world
         R = SMatrix{2,2}(cos(θ), sin(θ), -sin(θ), cos(θ))
@@ -76,7 +77,7 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
         vel_arrow   = vel_scale * vel_world
 
         # Plot
-        plot(bx, by, lw=2, label="", aspect_ratio=1, xlims=xlims, ylims=ylims)
+        plot(bx, by, lw=2, label="", aspect_ratio=1, xlims=xlims, ylims=ylims, size=(1500,300))
         scatter!([left_pos[1], right_pos[1], prop_pos[1]], [left_pos[2], right_pos[2], prop_pos[2]], label="", color=:black)
 
         # Thrust arrows
@@ -87,7 +88,7 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
         # Velocity vector (center of mass)
         quiver!([v], [z], quiver=([vel_arrow[1]], [vel_arrow[2]]), color=:blue, label="")
 
-        title!("VTOL, t = $(round(t, digits=2)) s")
+        title!("VTOL, t = $(Printf.@sprintf("%2.2f", t)) s")
     end
 
     gif(anim, filename, fps=fps)
