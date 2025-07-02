@@ -4,6 +4,7 @@ using StaticArrays
 import Printf
 
 function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.gif")
+    gr()
     t_hist = range(sol.t[1], sol.t[end], length = round(Int, fps * (sol.t[end] - sol.t[1])))
 
     # Geometry and scaling
@@ -41,7 +42,7 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
         vz = state[4]
         θ = state[5]
 
-        T_left, T_right, T_prop = 10*state[7:9]
+        T_right, T_left, T_prop = 10*state[7:9]
 
         # Rotation matrix: body to world
         R = SMatrix{2,2}(cos(θ), sin(θ), -sin(θ), cos(θ))
