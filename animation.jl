@@ -3,7 +3,7 @@ using LinearAlgebra
 using StaticArrays
 import Printf
 
-function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.gif")
+function animate_vtol(sol, ref_traj; z_offset=0.0,  fps = 30, filename = "vtol_animation.gif")
     gr()
     t_hist = range(sol.t[1], sol.t[end], length = round(Int, fps * (sol.t[end] - sol.t[1])))
 
@@ -18,6 +18,8 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
     xlims = (minimum(sol(t)[1] for t in t_hist) - 1, maximum(sol(t)[1] for t in t_hist) + 1)
     ylims = (minimum(sol(t)[3] + z_offset for t in t_hist) - 1, maximum(sol(t)[3] + z_offset for t in t_hist) + 1)
 
+    trajx = [ref_traj(t)[1] for t in t_hist]
+    trajy = [ref_traj(t)[2] + z_offset for t in t_hist]
     anim = @animate for t in t_hist
         state = sol(t)
         # v = state[1]     # horizontal position
@@ -88,6 +90,8 @@ function animate_vtol(sol; z_offset=0.0,  fps = 30, filename = "vtol_animation.g
 
         # Velocity vector (center of mass)
         quiver!([v], [z], quiver=([vel_arrow[1]], [vel_arrow[2]]), color=:blue, label="")
+
+        plot!(trajx, trajy, label="Reference Trajectory", color=:green, lw=1.5, linestyle=:dash)
 
         title!("VTOL, t = $(Printf.@sprintf("%2.2f", t)) s")
     end
